@@ -4,7 +4,6 @@ import transformer from "./index";
 const compilerOptions = {
   target: ts.ScriptTarget.ESNext,
   module: ts.ModuleKind.CommonJS,
-  jsx: ts.JsxEmit.Preserve,
 };
 
 function compile(source: string): string {
@@ -33,10 +32,12 @@ function check(source: string, expected: string) {
 test("should work", () => {
   check(
     `\
-const a = 3;
+aggregate(function(this) {
+  return this.$addFields({ hello: this.world });
+});
 `,
     `\
-const a = 3;
+[{ $addFields: { hello: "$world" } }];
 `
   );
 });
