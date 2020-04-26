@@ -11,8 +11,7 @@ export function transformOperators(
     ) {
       return ts.createLiteral("$" + node.name.getText());
     }
-    throw new Error();
-    // return ts.visitEachChild(node, visitor, context);
+    throw new Error("operation not available or invalid");
   }
   return ts.visitNode(node, visitor);
 }
