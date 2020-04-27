@@ -156,6 +156,7 @@ this.a !== this.b
 
 // { $gt: [ <expression1>, <expression2> ] }
 // { $gte: [ <expression1>, <expression2> ] }
+// { $cmp: [ <expression1>, <expression2> ] }
 
 // https://docs.mongodb.com/manual/reference/operator/aggregation/#conditional-expression-operators
 
@@ -169,5 +170,128 @@ this.a ? this.b : this.c
 `
   );
 });
+
 // { $ifNull: [ <expression>, <replacement-expression-if-null> ] }
 // switch
+
+// https://docs.mongodb.com/manual/reference/operator/aggregation/#array-expression-operators
+
+test("$arrayElemAt", () => {
+  check(
+    `\
+this.a[2]
+`,
+    `\
+({ $arrayElemAt: ["$a", 2] });
+`
+  );
+});
+
+test("$arrayElemAt - 1", () => {
+  check(
+    `\
+this.a[this.a.length -1]
+`,
+    `\
+({ $arrayElemAt: ["$a", -1] });
+`
+  );
+});
+
+// TODO also check for spread operator
+test("$concatArrays", () => {
+  check(
+    `\
+this.a.concat(this.b)
+`,
+    `\
+({ $concatArrays: ["$a", "$b"] });
+`
+  );
+});
+
+test("$filter", () => {
+  check(
+    `\
+this.a.filter((va) => va !== 0)
+`,
+    `\
+({ $filter: { input: "$a", as: "va", cond: { $eq: ["$$va", 0] } } });
+`
+  );
+});
+
+test("$in", () => {
+  check(
+    `\
+this.a.includes(3)
+`,
+    `\
+({ $in: [3, "$a"] });
+`
+  );
+});
+
+test("$indexOfArray", () => {
+  check(
+    `\
+this.a.indexOf(3)
+`,
+    `\
+({ $indexOfArray: ["$a", 3] });
+`
+  );
+});
+
+test("$isArray", () => {
+  check(
+    `\
+Array.isArray(this.a)
+`,
+    `\
+({ $isArray: ["$a"] });
+`
+  );
+});
+
+test("$reverseArray", () => {
+  check(
+    `\
+this.a.reverse()
+`,
+    `\
+({ $reverseArray: "$a" });
+`
+  );
+});
+
+test("$size", () => {
+  check(
+    `\
+this.a.length()
+`,
+    `\
+({ $size: "$a" });
+`
+  );
+});
+
+// map
+// {
+//     $reduce: {
+//         input: <array>,
+//         initialValue: <expression>,
+//         in: <expression>
+//     }
+// }
+// { $arrayToObject: <expression> } // [ [ "item", "abc123"], [ "qty", 25 ] ] // [ [ "item", "abc123"], [ "qty", 25 ] ]
+// { $objectToArray: <object> }
+// {
+//    $reduce: {
+//       input: ["a", "b", "c"],
+//       initialValue: "",
+//       in: { $concat : ["$$value", "$$this"] }
+//     }
+// } // "abc"
+// { $slice: [ <array>, <n> ] }
+// { $slice: [ <array>, <position>, <n> ] }
