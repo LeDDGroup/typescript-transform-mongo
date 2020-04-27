@@ -13,7 +13,6 @@ function compileStage(stage: string, source: string) {
       after: [
         (context) => (node) => {
           const firstStatement = node.statements[0];
-          console.log(ts.SyntaxKind[firstStatement.kind]);
           if (!ts.isExpressionStatement(firstStatement)) {
             throw new Error("Expected expression");
           }
