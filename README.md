@@ -26,17 +26,41 @@ Add it to _plugins_ in your _tsconfig.json_
 ## Example
 
 ```tsx
-const pipeline = aggregate(function(this: any) {
-  return this.$addFields({ hello: this.world + 3});
+import { Aggregate } from "typescript-transform-mongo";
+
+const pipeline = aggregate(function (this: Aggregate<{ foo: string }>) {
+  return this.$addFields({ bar: this.foo + "asdf" });
 });
 ```
 
 Gets compiled to:
 
 ```js
-const pipeline = [{ $addFields: { hello: { $add: ["$world", 3] } }];
+const pipeline = [
+  { $addFields: { bar: { $add: ["$foo", { $literal: "asdf" }] } } },
+];
 ```
+
+### Compiling example folder
+
+dir: https://github.com/LeDDGroup/typescript-transform-mongo/tree/master/examples
+
+make sure to build the project first:
+
+``` sh
+npm run build
+cd examples
+npx ttsc
+```
+
 
 ## Contributing
 
 Checkout the test files under src/ for failing and pending tests. PRs and issues are welcome.
+
+We are using `jest` for tests, so:
+
+``` sh
+npm test            # or npx jest
+npm test -- --watch # or npx jest --watch
+```
