@@ -112,6 +112,12 @@ export function transformOperators(
         ),
       ]);
     }
+    // literal
+    if (ts.isLiteralExpression(node)) {
+      return ts.createObjectLiteral([
+        ts.createPropertyAssignment("$literal", node),
+      ]);
+    }
     throw new Error(
       `operation '${ts.SyntaxKind[node.kind]}' not available or invalid`
     );

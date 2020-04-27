@@ -305,7 +305,28 @@ this.a.length()
 });
 
 // https://docs.mongodb.com/manual/reference/operator/aggregation/#literal-expression-operator
-test.todo("literal");
+describe("$literal", () => {
+  test("number", () => {
+    check(
+      `\
+3
+`,
+      `\
+({ $literal: 3 });
+`
+    );
+  });
+  test("string", () => {
+    check(
+      `\
+"foo"
+`,
+      `\
+({ $literal: "foo" });
+`
+    );
+  });
+});
 
 // https://docs.mongodb.com/manual/reference/operator/aggregation/#object-expression-operators
 describe("object expression operators", () => {
