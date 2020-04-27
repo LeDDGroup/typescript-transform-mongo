@@ -89,3 +89,5 @@ function transformer<T extends ts.Node>(_program: ts.Program) {
 }
 
 export default transformer;
+
+export * from "./types";

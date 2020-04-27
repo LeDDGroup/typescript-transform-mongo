@@ -18,7 +18,6 @@ Add it to _plugins_ in your _tsconfig.json_
 ```json
 {
   "compilerOptions": {
-    "jsx": "react-native",
     "plugins": [{ "transform": "typescript-transform-mongo" }]
   }
 }
