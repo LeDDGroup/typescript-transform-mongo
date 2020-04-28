@@ -373,7 +373,7 @@ this.a.reverse()
   test("$size", () => {
     check(
       `\
-this.a.length()
+this.a.length
 `,
       `\
 ({ $size: "$a" });

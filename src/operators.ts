@@ -9,6 +9,8 @@ export function transformOperators(
     typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.NumberLike;
   const isBoolean = (node: ts.Node) =>
     typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.BooleanLike;
+  const isArray = (node: ts.Node) =>
+    typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.Narrowable; // TODO check if it's valid for arrays
   const isOperation = (node: ts.BinaryExpression, token: ts.SyntaxKind) =>
     node.operatorToken.kind === token;
   const binary = (node: ts.BinaryExpression, op: string) =>
@@ -18,6 +20,8 @@ export function transformOperators(
         ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
       ),
     ]);
+  const unary = (node: ts.Expression, op: string) =>
+    ts.createObjectLiteral([ts.createPropertyAssignment(op, visitor(node))]);
   function visitor<T extends ts.Expression>(node: T): ts.Expression {
     if (ts.isParenthesizedExpression(node)) {
       return visitor(node.expression);
@@ -102,6 +106,14 @@ export function transformOperators(
       return ts.createObjectLiteral([
         ts.createPropertyAssignment("$literal", node),
       ]);
+    }
+    // array.length
+    if (
+      ts.isPropertyAccessExpression(node) &&
+      node.name.text === "length" &&
+      isArray(node.expression)
+    ) {
+      return unary(node.expression, "$size");
     }
     console.warn(`\
 ---- Code
