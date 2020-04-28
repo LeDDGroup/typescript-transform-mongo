@@ -287,7 +287,7 @@ describe("array expression operators", () => {
 this.a[2]
 `,
       `\
-({ $arrayElemAt: ["$a", 2] });
+({ $arrayElemAt: ["$a", { $literal: 2 }] });
 `
     );
   });

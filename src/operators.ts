@@ -13,15 +13,17 @@ export function transformOperators(
     typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.Narrowable; // TODO check if it's valid for arrays
   const isOperation = (node: ts.BinaryExpression, token: ts.SyntaxKind) =>
     node.operatorToken.kind === token;
-  const binary = (node: ts.BinaryExpression, op: string) =>
+  const array = (op: string, elements: ts.Expression[]) =>
     ts.createObjectLiteral([
       ts.createPropertyAssignment(
         op,
-        ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
+        ts.createArrayLiteral(elements.map((node) => visitor(node)))
       ),
     ]);
   const unary = (node: ts.Expression, op: string) =>
     ts.createObjectLiteral([ts.createPropertyAssignment(op, visitor(node))]);
+  const binary = (node: ts.BinaryExpression, op: string) =>
+    array(op, [node.left, node.right]);
   function visitor<T extends ts.Expression>(node: T): ts.Expression {
     if (ts.isParenthesizedExpression(node)) {
       return visitor(node.expression);
@@ -102,19 +104,20 @@ export function transformOperators(
       ]);
     }
     // literal
-    if (ts.isLiteralExpression(node)) {
+    if (ts.isLiteralExpression(node))
       return ts.createObjectLiteral([
         ts.createPropertyAssignment("$literal", node),
       ]);
-    }
     // array.length
     if (
       ts.isPropertyAccessExpression(node) &&
       node.name.text === "length" &&
       isArray(node.expression)
-    ) {
+    )
       return unary(node.expression, "$size");
-    }
+    // array[index]
+    if (ts.isElementAccessExpression(node) && isArray(node.expression))
+      return array("$arrayElemAt", [node.expression, node.argumentExpression]);
     console.warn(`\
 ---- Code
 
