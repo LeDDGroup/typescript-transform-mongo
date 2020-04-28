@@ -9,8 +9,7 @@ export function transformOperators(
     typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.NumberLike;
   const isBoolean = (node: ts.Node) =>
     typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.BooleanLike;
-  const isArray = (node: ts.Node) =>
-    typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.Narrowable; // TODO check if it's valid for arrays
+  const isArray = (node: ts.Node) => true; // TODO find proper type check
   const isOperation = (node: ts.BinaryExpression, token: ts.SyntaxKind) =>
     node.operatorToken.kind === token;
   const array = (op: string, elements: ts.Expression[]) =>
