@@ -4,6 +4,7 @@ type Aggregate<T> = T & {
 };
 declare global {
   function aggregate(func: () => any): AggregateResult;
+  function aggregateOp(func: () => any): AggregateResult;
 }
 
 export type { Aggregate };

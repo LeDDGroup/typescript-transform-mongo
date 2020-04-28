@@ -1,5 +1,6 @@
 import * as ts from "typescript";
 import { transformStage } from "./stages";
+import { transformOperators } from "./operators";
 
 function getStages(
   node: ts.CallExpression,
@@ -60,6 +61,24 @@ function transformAggregateFunction(
   );
 }
 
+function transformAggregateOperationFunction(
+  node: ts.FunctionExpression,
+  context: ts.TransformationContext
+): ts.Expression {
+  const firstStatement = node.body.statements[0];
+  if (
+    !(
+      ts.isReturnStatement(firstStatement) &&
+      firstStatement.expression !== undefined
+    )
+  ) {
+    throw new Error(
+      "first and only statement of aggregate function should be return statement"
+    );
+  }
+  return transformOperators(firstStatement.expression, context);
+}
+
 function locateAggregateFunction<L extends ts.Node>(
   node: L,
   context: ts.TransformationContext
@@ -77,6 +96,19 @@ function locateAggregateFunction<L extends ts.Node>(
         ); // TODO improve messages and hints
       }
       return transformAggregateFunction(firstArgument, context);
+    }
+    if (
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.getText() === "aggregateOp"
+    ) {
+      const firstArgument = node.arguments[0];
+      if (!ts.isFunctionExpression(firstArgument)) {
+        throw new Error(
+          "called aggregateOp function but not passed function declaration"
+        ); // TODO improve messages and hints
+      }
+      return transformAggregateOperationFunction(firstArgument, context);
     }
     return ts.visitEachChild(node, visitor, context);
   }

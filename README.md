@@ -31,6 +31,16 @@ import { Aggregate } from "typescript-transform-mongo";
 const pipeline = aggregate(function (this: Aggregate<{ foo: string }>) {
   return this.$addFields({ bar: this.foo + "asdf" });
 });
+
+const pipelineAlt = [
+  {
+    $addFields: {
+      x: aggregateOp(function (this: { y: number }) {
+        return this.y + 3;
+      }),
+    },
+  },
+];
 ```
 
 Gets compiled to:
@@ -38,6 +48,14 @@ Gets compiled to:
 ```js
 const pipeline = [
   { $addFields: { bar: { $add: ["$foo", { $literal: "asdf" }] } } },
+];
+
+const pipelineAlt = [
+  {
+    $addFields: {
+      x: { $add: ["$y", { $literal: 3 }] },
+    },
+  },
 ];
 ```
 
@@ -47,12 +65,11 @@ dir: https://github.com/LeDDGroup/typescript-transform-mongo/tree/master/example
 
 make sure to build the project first:
 
-``` sh
+```sh
 npm run build
 cd examples
 npx ttsc
 ```
-
 
 ## Contributing
 
@@ -60,7 +77,7 @@ Checkout the test files under src/ for failing and pending tests. PRs and issues
 
 We are using `jest` for tests, so:
 
-``` sh
+```sh
 npm test            # or npx jest
 npm test -- --watch # or npx jest --watch
 ```

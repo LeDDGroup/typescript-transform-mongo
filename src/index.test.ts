@@ -41,3 +41,16 @@ aggregate(function(this) {
 `
   );
 });
+
+test("aggregateOp alt", () => {
+  check(
+    `\
+aggregateOp(function(this) {
+  return this.world;
+});
+`,
+    `\
+"$world";
+`
+  );
+});
