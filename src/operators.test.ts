@@ -79,10 +79,9 @@ this.foo
   );
 });
 
-// TODO enable later
-// test("no types should fail some operations", () => {
-//   expectFail("this.doesntExist + this.b");
-// });
+test("no types should fail some operations", () => {
+  expectFail("this.doesntExist + this.b");
+});
 
 test("parenthesized expression", () => {
   check(

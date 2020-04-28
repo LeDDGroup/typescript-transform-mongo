@@ -166,14 +166,13 @@ export function transformOperators(
       isArray(node.arguments[0])
     )
       return array("$isArray", [node.arguments[0]]);
-    console.error(`\
+    throw new Error(`\
 ---- operation '${ts.SyntaxKind[node.kind]}' not available or invalid
 
 ${node.getText()}
 
 ----\
 `);
-    return node;
   }
   return ts.visitNode(node, visitor as any);
 }
