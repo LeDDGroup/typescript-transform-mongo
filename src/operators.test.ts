@@ -50,6 +50,7 @@ function compile(source: string): string {
 function wrapOneline(source: string) {
   return `function (this: {
 na: number, nb: number,
+ba: boolean, bb: boolean,
 }) {
   return ${source};
 }
@@ -146,10 +147,10 @@ describe("boolean expression operators", () => {
   test("$and", () => {
     check(
       `\
-this.a && this.b
+this.ba && this.bb
 `,
       `\
-({ $and: ["$a", "$b"] });
+({ $and: ["$ba", "$bb"] });
 `
     );
   });
@@ -157,10 +158,10 @@ this.a && this.b
   test("$not", () => {
     check(
       `\
-!this.a
+!this.ba
 `,
       `\
-({ $not: ["$a"] });
+({ $not: ["$ba"] });
 `
     );
   });
@@ -168,10 +169,10 @@ this.a && this.b
   test("$or", () => {
     check(
       `\
-this.a || this.b
+this.ba || this.bb
 `,
       `\
-({ $or: ["$a", "$b"] });
+({ $or: ["$ba", "$bb"] });
 `
     );
   });

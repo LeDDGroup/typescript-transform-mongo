@@ -55,26 +55,6 @@ export function transformOperators(
             ),
           ]);
         }
-        // eq
-        if (node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$eq",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
-        // nq
-        if (
-          node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
-        ) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$ne",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
       }
       if (isBoolean(node.left) && isBoolean(node.right)) {
         // and
@@ -95,6 +75,26 @@ export function transformOperators(
             ),
           ]);
         }
+      }
+      // eq
+      if (node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) {
+        return ts.createObjectLiteral([
+          ts.createPropertyAssignment(
+            "$eq",
+            ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
+          ),
+        ]);
+      }
+      // nq
+      if (
+        node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
+      ) {
+        return ts.createObjectLiteral([
+          ts.createPropertyAssignment(
+            "$ne",
+            ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
+          ),
+        ]);
       }
     }
     // not
