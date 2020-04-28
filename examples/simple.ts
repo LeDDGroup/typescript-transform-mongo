@@ -4,7 +4,7 @@ const pipeline = [
   {
     $addFields: {
       x: aggregateOp(function (this: { y: number }) {
-        return this.y + 3;
+        return (this.y + 3) / 2;
       }),
     },
   },

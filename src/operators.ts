@@ -10,6 +10,9 @@ export function transformOperators(
   const isBoolean = (node: ts.Node) =>
     typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.Boolean;
   function visitor<T extends ts.Expression>(node: T): ts.Expression {
+    if (ts.isParenthesizedExpression(node)) {
+      return visitor(node.expression);
+    }
     if (
       ts.isPropertyAccessExpression(node) &&
       node.expression.getText() === "this"

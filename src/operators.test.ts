@@ -81,6 +81,17 @@ test("no types should fail some operations", () => {
   expectFail("this.doesntExist + this.b");
 });
 
+test("parenthesized expression", () => {
+  check(
+    `\
+(this.na + this.nb)
+`,
+    `\
+({ $add: ["$na", "$nb"] });
+`
+  );
+});
+
 describe("arithmetic expression operators", () => {
   // https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
   test("$add", () => {
