@@ -118,6 +118,14 @@ export function transformOperators(
     // array[index]
     if (ts.isElementAccessExpression(node) && isArray(node.expression))
       return array("$arrayElemAt", [node.expression, node.argumentExpression]);
+    // array.includes(element)
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      isArray(node.expression.expression) &&
+      node.expression.name.text === "includes"
+    )
+      return array("$in", [node.arguments[0], node.expression.expression]);
     console.warn(`\
 ---- Code
 

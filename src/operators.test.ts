@@ -332,7 +332,7 @@ this.a.filter((va) => va !== 0)
 this.a.includes(3)
 `,
       `\
-({ $in: [3, "$a"] });
+({ $in: [{ $literal: 3 }, "$a"] });
 `
     );
   });
