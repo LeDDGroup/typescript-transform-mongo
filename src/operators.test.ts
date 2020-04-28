@@ -214,10 +214,46 @@ this.a !== this.b
     );
   });
 
-  test.todo("$gt");
-  test.todo("$gte");
-  test.todo("$lt");
-  test.todo("$lte");
+  test("$gt", () => {
+    check(
+      `\
+this.na > this.nb
+`,
+      `\
+({ $gt: ["$na", "$nb"] });
+`
+    );
+  });
+  test("$gte", () => {
+    check(
+      `\
+this.na >= this.nb
+`,
+      `\
+({ $gte: ["$na", "$nb"] });
+`
+    );
+  });
+  test("$lt", () => {
+    check(
+      `\
+this.na < this.nb
+`,
+      `\
+({ $lt: ["$na", "$nb"] });
+`
+    );
+  });
+  test("$lte", () => {
+    check(
+      `\
+this.na <= this.nb
+`,
+      `\
+({ $lte: ["$na", "$nb"] });
+`
+    );
+  });
   test.todo("$cmp");
 });
 

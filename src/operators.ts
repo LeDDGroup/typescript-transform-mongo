@@ -58,6 +58,18 @@ export function transformOperators(
       // nq
       if (isOperation(node, ts.SyntaxKind.ExclamationEqualsEqualsToken))
         return binary(node, "$ne");
+      // gt
+      if (isOperation(node, ts.SyntaxKind.GreaterThanToken))
+        return binary(node, "$gt");
+      // gte
+      if (isOperation(node, ts.SyntaxKind.GreaterThanEqualsToken))
+        return binary(node, "$gte");
+      // lt
+      if (isOperation(node, ts.SyntaxKind.LessThanToken))
+        return binary(node, "$lt");
+      // lte
+      if (isOperation(node, ts.SyntaxKind.LessThanEqualsToken))
+        return binary(node, "$lte");
     }
     // not
     if (
