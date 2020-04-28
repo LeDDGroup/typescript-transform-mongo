@@ -103,7 +103,7 @@ export function transformOperators(
         ts.createPropertyAssignment("$literal", node),
       ]);
     }
-    console.error(`\
+    console.warn(`\
 ---- Code
 
 ${node.getText()}
