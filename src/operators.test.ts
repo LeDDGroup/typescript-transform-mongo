@@ -287,7 +287,7 @@ describe("array expression operators", () => {
   test("$arrayElemAt", () => {
     check(
       `\
-this.arr
+this.arr[2]
 `,
       `\
 ({ $arrayElemAt: ["$arr", { $literal: 2 }] });
