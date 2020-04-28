@@ -323,7 +323,29 @@ this.arr.concat(this.arr2)
 this.arr.filter((va) => va !== 0)
 `,
       `\
-({ $filter: { input: "$arr", as: "va", cond: { $eq: ["$$va", 0] } } });
+({ $filter: { input: "$arr", as: "va", cond: { $eq: ["$$va", { $literal: 0 }] } } });
+`
+    );
+  });
+
+  test("$map", () => {
+    check(
+      `\
+this.arr.map((va) => va + 1)
+`,
+      `\
+({ $map: { input: "$arr", as: "va", in: { $add: ["$$va", { $literal: 1 }] } } });
+`
+    );
+  });
+
+  test("$map", () => {
+    check(
+      `\
+this.arr.map((va) => va + 1)
+`,
+      `\
+({ $map: { input: "$arr", as: "va", in: { $add: ["$$va", { $literal: 1 }] } } });
 `
     );
   });
@@ -383,8 +405,6 @@ this.arr.length
     );
   });
 
-  test.todo("$map");
-  test.todo("$reduce");
   test.todo("$arrayToObject");
   test.todo("$slice");
   test.todo("$zip");
