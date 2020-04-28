@@ -6,9 +6,18 @@ export function transformOperators(
   typeChecker: ts.TypeChecker
 ): ts.Expression {
   const isNumber = (node: ts.Node) =>
-    typeChecker.getTypeAtLocation(node) .flags & ts.TypeFlags.NumberLike;
+    typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.NumberLike;
   const isBoolean = (node: ts.Node) =>
     typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.BooleanLike;
+  const isOperation = (node: ts.BinaryExpression, token: ts.SyntaxKind) =>
+    node.operatorToken.kind === token;
+  const binary = (node: ts.BinaryExpression, op: string) =>
+    ts.createObjectLiteral([
+      ts.createPropertyAssignment(
+        op,
+        ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
+      ),
+    ]);
   function visitor<T extends ts.Expression>(node: T): ts.Expression {
     if (ts.isParenthesizedExpression(node)) {
       return visitor(node.expression);
@@ -23,82 +32,32 @@ export function transformOperators(
       // TODO check for all types and improve errors messages if doesn't match any type
       if (isNumber(node.left) && isNumber(node.right)) {
         // add
-        if (node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$add",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
+        if (isOperation(node, ts.SyntaxKind.PlusToken))
+          return binary(node, "$add");
         // subtract
-        if (node.operatorToken.kind === ts.SyntaxKind.MinusToken) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$subtract",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
+        if (isOperation(node, ts.SyntaxKind.MinusToken))
+          return binary(node, "$subtract");
         // multiply
-        if (node.operatorToken.kind === ts.SyntaxKind.AsteriskToken) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$multiply",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
+        if (isOperation(node, ts.SyntaxKind.AsteriskToken))
+          return binary(node, "$multiply");
         // divide
-        if (node.operatorToken.kind === ts.SyntaxKind.SlashToken) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$divide",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
+        if (isOperation(node, ts.SyntaxKind.SlashToken))
+          return binary(node, "$divide");
       }
       if (isBoolean(node.left) && isBoolean(node.right)) {
         // and
-        if (node.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$and",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
+        if (isOperation(node, ts.SyntaxKind.AmpersandAmpersandToken))
+          return binary(node, "$and");
         // or
-        if (node.operatorToken.kind === ts.SyntaxKind.BarBarToken) {
-          return ts.createObjectLiteral([
-            ts.createPropertyAssignment(
-              "$or",
-              ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-            ),
-          ]);
-        }
+        if (isOperation(node, ts.SyntaxKind.BarBarToken))
+          return binary(node, "$or");
       }
       // eq
-      if (node.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken) {
-        return ts.createObjectLiteral([
-          ts.createPropertyAssignment(
-            "$eq",
-            ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-          ),
-        ]);
-      }
+      if (isOperation(node, ts.SyntaxKind.EqualsEqualsEqualsToken))
+        return binary(node, "$eq");
       // nq
-      if (
-        node.operatorToken.kind === ts.SyntaxKind.ExclamationEqualsEqualsToken
-      ) {
-        return ts.createObjectLiteral([
-          ts.createPropertyAssignment(
-            "$ne",
-            ts.createArrayLiteral([visitor(node.left), visitor(node.right)])
-          ),
-        ]);
-      }
+      if (isOperation(node, ts.SyntaxKind.ExclamationEqualsEqualsToken))
+        return binary(node, "$ne");
     }
     // not
     if (
