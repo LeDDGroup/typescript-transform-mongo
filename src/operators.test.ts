@@ -6,7 +6,10 @@ const compilerOptions = {
   module: ts.ModuleKind.CommonJS,
 };
 
-function compile(source: string): string {
+function applyTransformer(
+  source: string,
+  transformer: (program: ts.Program) => ts.TransformerFactory<ts.SourceFile>
+) {
   let content = "";
   const program = ts.createProgram(["index.ts"], compilerOptions, {
     ...ts.createCompilerHost(compilerOptions),
@@ -19,32 +22,33 @@ function compile(source: string): string {
     (_, result) => (content = result),
     undefined,
     undefined,
-    {
-      after: [
-        (context) => (node) => {
-          const firstStatement = node.statements[0];
-          if (!ts.isFunctionDeclaration(firstStatement)) {
-            throw new Error("Expected function");
-          }
-          return ts.updateSourceFileNode(node, [
-            ts.createStatement(
-              transformAggregateOperationFunction(
-                firstStatement,
-                context,
-                program.getTypeChecker()
-              )
-            ),
-          ]);
-          // return ts.updateSourceFileNode(node, [
-          //   ts.createStatement(
-          //     transformOperators(firstStatement.expression, context)
-          //   ),
-          // ]);
-        },
-      ],
-    }
+    { after: [transformer(program)] }
   );
   return content;
+}
+
+function compile(source: string): string {
+  return applyTransformer(source, (program) => (context) => (node) => {
+    const firstStatement = node.statements[0];
+    if (!ts.isFunctionDeclaration(firstStatement)) {
+      throw new Error("Expected function");
+    }
+    return ts.updateSourceFileNode(node, [
+      ts.createStatement(
+        transformAggregateOperationFunction(
+          firstStatement,
+          context,
+          program.getTypeChecker()
+        )
+      ),
+    ]);
+    // return ts.updateSourceFileNode(node, [
+    //   ts.createStatement(
+    //     transformOperators(firstStatement.expression, context)
+    //   ),
+    // ]);
+  });
+  // return content;
 }
 
 function wrapOneline(source: string) {
