@@ -125,6 +125,16 @@ export function transformOperators(
       node.expression.name.text === "includes"
     )
       return array("$in", [node.arguments[0], node.expression.expression]);
+    // Array.isArray
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.expression) &&
+      node.expression.expression.text === "Array" &&
+      node.expression.name.text === "isArray" &&
+      isArray(node.arguments[0])
+    )
+      return array("$isArray", [node.arguments[0]]);
     console.error(`\
 ---- operation '${ts.SyntaxKind[node.kind]}' not available or invalid
 
