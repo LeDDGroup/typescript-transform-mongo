@@ -132,6 +132,13 @@ export function transformOperators(
         ts.createPropertyAssignment("$literal", node),
       ]);
     }
+    console.error(`\
+---- Code
+
+${node.getText()}
+
+----\
+`);
     throw new Error(
       `operation '${ts.SyntaxKind[node.kind]}' not available or invalid`
     );
