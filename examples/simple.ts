@@ -1,9 +1,6 @@
-import { Aggregate } from "../";
+declare function aggregateOp(fn: any): object;
 
-const pipeline = aggregate(function (this: Aggregate<{ foo: string }>) {
-  return this.$addFields({ bar: this.foo + "asdf" });
-});
-const pipelineAlt = [
+const pipeline = [
   {
     $addFields: {
       x: aggregateOp(function (this: { y: number }) {

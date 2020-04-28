@@ -29,18 +29,18 @@ function check(source: string, expected: string) {
   expect(actual).toBe(expected);
 }
 
-test("should work", () => {
-  check(
-    `\
-aggregate(function(this) {
-  return this.$addFields({ hello: this.world });
-});
-`,
-    `\
-[{ $addFields: { hello: "$world" } }];
-`
-  );
-});
+// test("should work", () => {
+//   check(
+//     `\
+// aggregate(function(this) {
+//   return this.$addFields({ hello: this.world });
+// });
+// `,
+//     `\
+// [{ $addFields: { hello: "$world" } }];
+// `
+//   );
+// });
 
 test("aggregateOp alt", () => {
   check(

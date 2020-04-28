@@ -26,13 +26,9 @@ Add it to _plugins_ in your _tsconfig.json_
 ## Example
 
 ```tsx
-import { Aggregate } from "typescript-transform-mongo";
+declare function aggregateOp(fn: any): object;
 
-const pipeline = aggregate(function (this: Aggregate<{ foo: string }>) {
-  return this.$addFields({ bar: this.foo + "asdf" });
-});
-
-const pipelineAlt = [
+const pipeline = [
   {
     $addFields: {
       x: aggregateOp(function (this: { y: number }) {
@@ -47,10 +43,6 @@ Gets compiled to:
 
 ```js
 const pipeline = [
-  { $addFields: { bar: { $add: ["$foo", { $literal: "asdf" }] } } },
-];
-
-const pipelineAlt = [
   {
     $addFields: {
       x: { $add: ["$y", { $literal: 3 }] },
