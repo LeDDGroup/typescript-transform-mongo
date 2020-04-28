@@ -126,16 +126,14 @@ export function transformOperators(
       node.expression.name.text === "includes"
     )
       return array("$in", [node.arguments[0], node.expression.expression]);
-    console.warn(`\
----- Code
+    console.error(`\
+---- operation '${ts.SyntaxKind[node.kind]}' not available or invalid
 
 ${node.getText()}
 
 ----\
 `);
-    throw new Error(
-      `operation '${ts.SyntaxKind[node.kind]}' not available or invalid`
-    );
+    return node;
   }
   return ts.visitNode(node, visitor as any);
 }
