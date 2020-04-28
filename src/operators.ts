@@ -19,7 +19,7 @@ export function transformOperators(
         ts.createArrayLiteral(elements.map((node) => visitor(node)))
       ),
     ]);
-  const unary = (node: ts.Expression, op: string) =>
+  const unary = (op: string, node: ts.Expression) =>
     ts.createObjectLiteral([ts.createPropertyAssignment(op, visitor(node))]);
   const binary = (node: ts.BinaryExpression, op: string) =>
     array(op, [node.left, node.right]);
@@ -113,7 +113,7 @@ export function transformOperators(
       node.name.text === "length" &&
       isArray(node.expression)
     )
-      return unary(node.expression, "$size");
+      return unary("$size", node.expression);
     // array[index]
     if (ts.isElementAccessExpression(node) && isArray(node.expression))
       return array("$arrayElemAt", [node.expression, node.argumentExpression]);
@@ -125,6 +125,37 @@ export function transformOperators(
       node.expression.name.text === "includes"
     )
       return array("$in", [node.arguments[0], node.expression.expression]);
+    // array.indexOf(element)
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      isArray(node.expression.expression) &&
+      node.expression.name.text === "indexOf"
+    )
+      return array("$indexOfArray", [
+        node.expression.expression,
+        node.arguments[0],
+      ]);
+    // array.concat(array2)
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      isArray(node.expression.expression) &&
+      isArray(node.arguments[0]) &&
+      node.expression.name.text === "concat"
+    )
+      return array("$concatArrays", [
+        node.expression.expression,
+        node.arguments[0],
+      ]);
+    // array.reverse
+    if (
+      ts.isCallExpression(node) &&
+      ts.isPropertyAccessExpression(node.expression) &&
+      isArray(node.expression.expression) &&
+      node.expression.name.text === "reverse"
+    )
+      return unary("$reverseArray", node.expression.expression);
     // Array.isArray
     if (
       ts.isCallExpression(node) &&

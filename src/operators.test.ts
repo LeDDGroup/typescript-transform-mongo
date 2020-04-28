@@ -346,7 +346,7 @@ this.arr.includes(3)
 this.arr.indexOf(3)
 `,
       `\
-({ $indexOfArray: ["$arr", 3] });
+({ $indexOfArray: ["$arr", { $literal: 3 }] });
 `
     );
   });
