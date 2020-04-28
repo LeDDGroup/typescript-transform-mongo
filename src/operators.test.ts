@@ -1,35 +1,67 @@
 import * as ts from "typescript";
-import { transformOperators } from "./operators";
+import { transformAggregateOperationFunction } from "./operators";
 
 const compilerOptions = {
   target: ts.ScriptTarget.ESNext,
   module: ts.ModuleKind.CommonJS,
 };
 
-function compile(source: string) {
-  const { outputText } = ts.transpileModule(source, {
-    compilerOptions,
-    transformers: {
+function compile(source: string): string {
+  let content = "";
+  const program = ts.createProgram(["index.ts"], compilerOptions, {
+    ...ts.createCompilerHost(compilerOptions),
+    getSourceFile(file: string): ts.SourceFile {
+      return ts.createSourceFile(file, source, compilerOptions.target);
+    },
+  });
+  program.emit(
+    undefined,
+    (_, result) => (content = result),
+    undefined,
+    undefined,
+    {
       after: [
         (context) => (node) => {
           const firstStatement = node.statements[0];
-          if (!ts.isExpressionStatement(firstStatement)) {
-            throw new Error("Expected expression");
+          if (!ts.isFunctionDeclaration(firstStatement)) {
+            throw new Error("Expected function");
           }
           return ts.updateSourceFileNode(node, [
             ts.createStatement(
-              transformOperators(firstStatement.expression, context)
+              transformAggregateOperationFunction(
+                firstStatement,
+                context,
+                program.getTypeChecker()
+              )
             ),
           ]);
+          // return ts.updateSourceFileNode(node, [
+          //   ts.createStatement(
+          //     transformOperators(firstStatement.expression, context)
+          //   ),
+          // ]);
         },
       ],
-    },
-  });
-  return outputText;
+    }
+  );
+  return content;
+}
+
+function wrapOneline(source: string) {
+  return `function (this: {
+na: number, nb: number,
+}) {
+  return ${source};
+}
+`;
+}
+
+function expectFail(source: string) {
+  expect(() => compile(wrapOneline(source))).toThrow();
 }
 
 function check(source: string, expected: string) {
-  const actual = compile(source);
+  const actual = compile(wrapOneline(source));
   expect(actual).toBe(expected);
 }
 
@@ -44,15 +76,19 @@ this.foo
   );
 });
 
+test("no types should fail some operations", () => {
+  expectFail("this.doesntExist + this.b");
+});
+
 describe("arithmetic expression operators", () => {
   // https://docs.mongodb.com/manual/reference/operator/aggregation/#arithmetic-expression-operators
   test("$add", () => {
     check(
       `\
-this.a + this.b
+this.na + this.nb
 `,
       `\
-({ $add: ["$a", "$b"] });
+({ $add: ["$na", "$nb"] });
 `
     );
   });
@@ -60,10 +96,10 @@ this.a + this.b
   test("$subtract", () => {
     check(
       `\
-this.a - this.b
+this.na - this.nb
 `,
       `\
-({ $subtract: ["$a", "$b"] });
+({ $subtract: ["$na", "$nb"] });
 `
     );
   });
@@ -71,10 +107,10 @@ this.a - this.b
   test("$multiply", () => {
     check(
       `\
-this.a * this.b
+this.na * this.nb
 `,
       `\
-({ $multiply: ["$a", "$b"] });
+({ $multiply: ["$na", "$nb"] });
 `
     );
   });
@@ -82,10 +118,10 @@ this.a * this.b
   test("$divide", () => {
     check(
       `\
-this.a / this.b
+this.na / this.nb
 `,
       `\
-({ $divide: ["$a", "$b"] });
+({ $divide: ["$na", "$nb"] });
 `
     );
   });
