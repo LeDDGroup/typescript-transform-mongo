@@ -6,9 +6,9 @@ export function transformOperators(
   typeChecker: ts.TypeChecker
 ): ts.Expression {
   const isNumber = (node: ts.Node) =>
-    typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.Number;
+    typeChecker.getTypeAtLocation(node) .flags & ts.TypeFlags.NumberLike;
   const isBoolean = (node: ts.Node) =>
-    typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.Boolean;
+    typeChecker.getTypeAtLocation(node).flags & ts.TypeFlags.BooleanLike;
   function visitor<T extends ts.Expression>(node: T): ts.Expression {
     if (ts.isParenthesizedExpression(node)) {
       return visitor(node.expression);
