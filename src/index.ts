@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 // import { transformStage } from "./stages";
-import { transformOperators } from "./operators";
+import { transformAggregateOperationFunction } from "./operators";
 
 // function getStages(
 //   node: ts.CallExpression,
@@ -60,24 +60,6 @@ import { transformOperators } from "./operators";
 //     )
 //   );
 // }
-
-function transformAggregateOperationFunction(
-  node: ts.FunctionExpression,
-  context: ts.TransformationContext
-): ts.Expression {
-  const firstStatement = node.body.statements[0];
-  if (
-    !(
-      ts.isReturnStatement(firstStatement) &&
-      firstStatement.expression !== undefined
-    )
-  ) {
-    throw new Error(
-      "first and only statement of aggregate function should be return statement"
-    );
-  }
-  return transformOperators(firstStatement.expression, context);
-}
 
 function locateAggregateFunction<L extends ts.Node>(
   node: L,

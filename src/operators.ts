@@ -124,3 +124,21 @@ export function transformOperators(
   }
   return ts.visitNode(node, visitor as any);
 }
+
+export function transformAggregateOperationFunction(
+  node: ts.FunctionExpression,
+  context: ts.TransformationContext
+): ts.Expression {
+  const firstStatement = node.body.statements[0];
+  if (
+    !(
+      ts.isReturnStatement(firstStatement) &&
+      firstStatement.expression !== undefined
+    )
+  ) {
+    throw new Error(
+      "first and only statement of aggregate function should be return statement"
+    );
+  }
+  return transformOperators(firstStatement.expression, context);
+}
